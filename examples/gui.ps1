@@ -1,3 +1,8 @@
+[cmdletbinding()]
+param()
+
+Import-Module ../lib/Q3Rcon.psm1
+
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 
