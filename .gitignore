@@ -107,3 +107,5 @@ logfile/*
 
 # config
 config.psd1
+
+notes.txt
