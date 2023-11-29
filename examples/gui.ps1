@@ -9,7 +9,7 @@ $Lbl = New-Object System.Windows.Forms.Label
 Function InitForm {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Q3Rcon Client"
-    $form.Size = New-Object System.Drawing.Size(300, 200)
+    $form.Size = New-Object System.Drawing.Size(275, 200)
     $form.StartPosition = "CenterScreen"
     return $form  
 }
@@ -20,7 +20,7 @@ Function AddOkButton {
     $OKB.Location = New-Object System.Drawing.Size(65, 100)
     $OKB.Size = New-Object System.Drawing.Size(65, 23)
     $OKB.Text = "Send"
-    $OKB.Add_Click({ $rcon.Send($OTB.Text) })
+    $OKB.Add_Click({ SendRconCommand -rcon $rcon })
     $form.Controls.Add($OKB)
 }
 
@@ -39,9 +39,16 @@ Function AddLabel($form) {
     $form.Controls.Add($Lbl)    
 }
 
-Function AddTextBox($form) {
+Function AddTextBox {
+    param($form, $rcon)
+
     $OTB.Location = New-Object System.Drawing.Size(10, 50)
     $OTB.Size = New-Object System.Drawing.Size(240, 20)
+    $OTB.Add_KeyDown({
+            if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Enter) {
+                SendRconCommand -rcon $rcon
+            }
+        })
     $form.Controls.Add($OTB)    
 }
 
@@ -50,6 +57,12 @@ Function FinalizeForm($form) {
     $form.Add_Shown({ $form.Activate() })    
 }
 
+Function SendRconCommand() {
+    param($rcon)
+
+    $rcon.Send($OTB.Text)
+    $OTB.Text = ""
+}
 
 
 Function Get-ConnFromPSD1 {
@@ -66,7 +79,7 @@ try {
     AddOkButton -form $form -rcon $rcon
     AddCloseButton($form)
     AddLabel($form)
-    AddTextBox($form)
+    AddTextBox -form $form -rcon $rcon
     FinalizeForm($form)
 
     [void] $form.ShowDialog()
