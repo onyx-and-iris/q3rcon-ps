@@ -75,20 +75,27 @@ Function Get-ConnFromPSD1 {
     return Import-PowerShellDataFile -Path $configpath
 }
 
-try {
-    $conn = Get-ConnFromPSD1
-    $rcon = Connect-Rcon -hostname $conn.host -port $conn.port -passwd $conn.passwd
-    Write-Host $rcon.base.ToString() -ForegroundColor Green
+Function Main {
+    try {
+        $conn = Get-ConnFromPSD1
+        $rcon = Connect-Rcon -hostname $conn.host -port $conn.port -passwd $conn.passwd
+        Write-Host $rcon.base.ToString() -ForegroundColor Green
 
-    $form = InitForm
-    AddOkButton -form $form -rcon $rcon
-    AddCloseButton($form)
-    AddLabel($form)
-    AddTextBox -form $form -rcon $rcon
-    FinalizeForm($form)
+        $form = InitForm
+        AddOkButton -form $form -rcon $rcon
+        AddCloseButton($form)
+        AddLabel($form)
+        AddTextBox -form $form -rcon $rcon
+        FinalizeForm($form)
 
-    [void] $form.ShowDialog()
+        [void] $form.ShowDialog()
+    }
+    finally {
+        Disconnect-Rcon -rcon $rcon
+    }    
 }
-finally {
-    Disconnect-Rcon -rcon $rcon
+
+
+if ($MyInvocation.InvocationName -ne '.') {
+    Main
 }
