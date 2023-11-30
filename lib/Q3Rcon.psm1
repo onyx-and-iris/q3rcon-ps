@@ -1,5 +1,10 @@
-. $PSScriptRoot\packet.ps1
-. $PSScriptRoot\base.ps1    
+try {
+    . (Join-Path $PSScriptRoot packet.ps1)
+    . (Join-Path $PSScriptRoot base.ps1)     
+}
+catch {
+    throw "unable to dot source module files"
+}
 
 
 class Rcon {
@@ -9,8 +14,8 @@ class Rcon {
         $this.base = New-Base -hostname $hostname -port $port -passwd $passwd
     }
 
-    [Rcon] Login() {
-        $resp = $this.base._send("login")
+    [Rcon] _login() {
+        $resp = $this.Send("login")
         if ($resp -in @("Bad rcon", "Bad rconpassword.", "Invalid password.")) {
             throw "invalid rcon password"
         }
@@ -18,55 +23,59 @@ class Rcon {
         return $this
     }
 
-    [string] Send($msg) {
+    [string] Send([string]$msg) {
         return $this.base._send($msg)
     }
 
+    [string] Send([string]$msg, [int]$timeout) {
+        return $this.base._send($msg, $timeout)
+    }
+
     [void] Say($msg) {
-        $this.base._send($msg)
+        $this.Send("say $msg")
     }
 
     [void] FastRestart() {
-        $this.base._send("fast_restart", 2000)
+        $this.Send("fast_restart", 2000)
     }
 
     [void] MapRotate() {
-        $this.base._send("map_rotate", 2000)
+        $this.Send("map_rotate", 2000)
     }
 
     [void] MapRestart() {
-        $this.base._send("map_restart", 2000)
+        $this.Send("map_restart", 2000)
     }
 
     [string] Map() {
-        return $this.base._send("mapname")
+        return $this.Send("mapname")
     }
 
     [void] SetMap($mapname) {
-        $this.base._send("map mp_$mapname")
+        $this.Send("map mp_" + $mapname.TrimStart("mp_"), 2000)
     }
 
     [string] Gametype() {
-        return $this.base._send("g_gametype")
+        return $this.Send("g_gametype")
     }
 
     [void] SetGametype($gametype) {
-        $this.base._send("g_gametype $gametype")
+        $this.Send("g_gametype $gametype")
     }
 
     [string] HostName() {
-        return $this.base._send("sv_hostname")
+        return $this.Send("sv_hostname")
     }
 
     [void] SetHostName($hostname) {
-        $this.base._send("sv_hostname $hostname")
+        $this.Send("sv_hostname $hostname")
     }
 }
 
 Function Connect-Rcon {
     param([string]$hostname, [int]$port, [string]$passwd)
 
-    [Rcon]::new($hostname, $port, $passwd).Login()
+    [Rcon]::new($hostname, $port, $passwd)._login()
 }
 
 Function Disconnect-Rcon {
