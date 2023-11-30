@@ -14,12 +14,15 @@ Function Read-HostUntilEmpty {
 
         if ($line -in @("fast_restart", "map_rotate", "map_restart")) {
             $cmd = $line -replace '(?:^|_)(\p{L})', { $_.Groups[1].Value.ToUpper() }
-            $resp = $rcon.$cmd()
+            $rcon.$cmd()
+        }
+        elseif ($line.StartsWith("map mp_")) {
+            $mapname = $line.Split()[1]
+            $rcon.SetMap($mapname)
         }
         else {
-            $resp = $rcon.Send($line) 
+            $rcon.Send($line)
         }
-        $resp | Write-Host
     }
 }
 
