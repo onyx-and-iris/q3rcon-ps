@@ -38,9 +38,7 @@ finally {
 
 ## Rcon Class
 
-### `Send($cmd) | Send($cmd, $timeout)`
-
-Send a RCON command as a string. For example:
+#### `Send($cmd) | Send($cmd, $timeout)`
 
 ```powershell
 $rcon.Send("mapname")
