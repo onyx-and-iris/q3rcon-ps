@@ -10,6 +10,7 @@ $OKB = New-Object System.Windows.Forms.Button
 $OTB = New-Object System.Windows.Forms.TextBox
 $CAB = New-Object System.Windows.Forms.Button
 $Lbl = New-Object System.Windows.Forms.Label
+$RLbl = New-Object System.Windows.Forms.Label
 
 Function InitForm {
     $form = New-Object System.Windows.Forms.Form
@@ -57,6 +58,13 @@ Function AddTextBox {
     $form.Controls.Add($OTB)    
 }
 
+Function AddResponseLabel($form) {
+    $RLbl.Location = New-Object System.Drawing.Size(10, 75)
+    $RLbl.Size = New-Object System.Drawing.Size(260, 20)
+    $RLbl.Text = ""
+    $form.Controls.Add($RLbl) 
+}
+
 Function FinalizeForm($form) {
     $form.Topmost = $true
     $form.Add_Shown({ $form.Activate() })    
@@ -65,7 +73,25 @@ Function FinalizeForm($form) {
 Function SendRconCommand() {
     param($rcon)
 
-    $rcon.Send($OTB.Text)
+    $line = $OTB.Text
+    $line | Write-Debug
+    if ($line -in @("fast_restart", "map_rotate", "map_restart")) {
+        $RLbl.Text = ""
+        $cmd = $line -replace '(?:^|_)(\p{L})', { $_.Groups[1].Value.ToUpper() }
+        $rcon.$cmd()
+    }
+    elseif ($line.StartsWith("map mp_")) {
+        $RLbl.Text = ""
+        $mapname = $line.Split()[1]
+        $rcon.SetMap($mapname)
+    }
+    else {
+        $resp = $rcon.Send($line)
+    }
+
+    if ($resp -match '^["](?<name>[a-z_]+)["]\sis[:]\s["](?<value>[A-Za-z_]+)\^7["]\s') {
+        $RLbl.Text = $Matches.name + ": " + $Matches.value
+    }
     $OTB.Text = ""
 }
 
@@ -85,6 +111,7 @@ Function Main {
         AddOkButton -form $form -rcon $rcon
         AddCloseButton($form)
         AddLabel($form)
+        AddResponseLabel($form)
         AddTextBox -form $form -rcon $rcon
         FinalizeForm($form)
 
