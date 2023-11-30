@@ -35,3 +35,21 @@ finally {
     Disconnect-Rcon -rcon $rcon
 }
 ```
+
+## Rcon Class
+
+### `Send($cmd) | Send($cmd, $timeout)`
+
+Send a RCON command as a string. For example:
+
+```powershell
+$rcon.Send("mapname")
+
+$rcon.Send("g_gametype dm")
+
+$rcon.Send("map_rotate", 2000)
+```
+
+If the command returns a response it will be printed to the console.
+
+Pass an optional timeout (ms) for commands that return responses in fragments. (status, map_rotate etc...)
