@@ -38,22 +38,16 @@ class Base {
     [string] _send([string]$msg) {
         $this._socket.Send($this.request.Payload($msg))
 
-        [string[]]$data = @()
-        $sw = [Diagnostics.Stopwatch]::StartNew()
-        While ($sw.ElapsedMilliseconds -lt 50) {
-            try {
-                $buf = New-Object System.Byte[] 4096
-                $this._socket.Receive($buf)
-                $data += [System.Text.Encoding]::ASCII.GetString($($buf | Select-Object -Skip $($this.response.Header().Length - 1)))
-            }
-            catch [System.Net.Sockets.SocketException] {
-                if ( $_.Exception.SocketErrorCode -eq 'TimedOut' ) {
-                    "finished waiting for fragment" | Write-Debug
-                }
+        $buf = New-Object System.Byte[] 4096
+        try {
+            $this._socket.Receive($buf)
+        }
+        catch [System.Net.Sockets.SocketException] {
+            if ( $_.Exception.SocketErrorCode -eq 'TimedOut' ) {
+                "finished waiting for fragment" | Write-Debug
             }
         }
-        $sw.Stop()
-        return [string]::Join("", $data)
+        return [System.Text.Encoding]::ASCII.GetString($($buf | Select-Object -Skip $($this.response.Header().Length - 1)))
     }
 
     [string] _send([string]$msg, [int]$timeout) {
@@ -73,6 +67,7 @@ class Base {
                 }
             }
         }
+        $sw.Stop()
         return [string]::Join("", $data)
     }
 
