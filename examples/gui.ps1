@@ -12,7 +12,7 @@ $CAB = New-Object System.Windows.Forms.Button
 $Lbl = New-Object System.Windows.Forms.Label
 $RLbl = New-Object System.Windows.Forms.Label
 
-Function InitForm {
+Function New-Form {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = "Q3Rcon Client"
     $form.Size = New-Object System.Drawing.Size(275, 200)
@@ -20,17 +20,17 @@ Function InitForm {
     return $form  
 }
 
-Function AddOkButton {
+Function Add-OkButton {
     param($form, $rcon)
 
     $OKB.Location = New-Object System.Drawing.Size(65, 100)
     $OKB.Size = New-Object System.Drawing.Size(65, 23)
     $OKB.Text = "Send"
-    $OKB.Add_Click({ SendRconCommand -rcon $rcon })
+    $OKB.Add_Click({ Send-RconCommand -rcon $rcon })
     $form.Controls.Add($OKB)
 }
 
-Function AddCloseButton($form) {
+Function Add-CloseButton($form) {
     $CAB.Location = New-Object System.Drawing.Size(140, 100)
     $CAB.Size = New-Object System.Drawing.Size(65, 23)
     $CAB.Text = "Close"
@@ -38,39 +38,40 @@ Function AddCloseButton($form) {
     $form.Controls.Add($CAB)    
 }
 
-Function AddLabel($form) {
+Function Add-Label($form) {
     $Lbl.Location = New-Object System.Drawing.Size(10, 20)
     $Lbl.Size = New-Object System.Drawing.Size(260, 20)
     $Lbl.Text = "Input Rcon Command:"
     $form.Controls.Add($Lbl)    
 }
 
-Function AddTextBox {
+Function Add-TextBox {
     param($form, $rcon)
 
     $OTB.Location = New-Object System.Drawing.Size(10, 50)
     $OTB.Size = New-Object System.Drawing.Size(240, 20)
     $OTB.Add_KeyDown({
             if ($_.KeyCode -eq [System.Windows.Forms.Keys]::Enter) {
-                SendRconCommand -rcon $rcon
+                Send-RconCommand -rcon $rcon
             }
         })
     $form.Controls.Add($OTB)    
 }
 
-Function AddResponseLabel($form) {
+Function Add-ResponseLabel($form) {
     $RLbl.Location = New-Object System.Drawing.Size(10, 75)
     $RLbl.Size = New-Object System.Drawing.Size(260, 20)
     $RLbl.Text = ""
     $form.Controls.Add($RLbl) 
 }
 
-Function FinalizeForm($form) {
+Function Start-Form($form) {
     $form.Topmost = $true
-    $form.Add_Shown({ $form.Activate() })    
+    $form.Add_Shown({ $form.Activate() })
+    [void] $form.ShowDialog()
 }
 
-Function SendRconCommand() {
+Function Send-RconCommand() {
     param($rcon)
 
     $line = $OTB.Text
@@ -102,22 +103,22 @@ Function Get-ConnFromPSD1 {
 }
 
 Function Main {
-    try {
+    BEGIN {
         $conn = Get-ConnFromPSD1
         $rcon = Connect-Rcon -hostname $conn.host -port $conn.port -passwd $conn.passwd
         Write-Host $rcon.base.ToString() -ForegroundColor Green
 
-        $form = InitForm
-        AddOkButton -form $form -rcon $rcon
-        AddCloseButton($form)
-        AddLabel($form)
-        AddResponseLabel($form)
-        AddTextBox -form $form -rcon $rcon
-        FinalizeForm($form)
-
-        [void] $form.ShowDialog()
+        $form = New-Form
+        Add-OkButton -form $form -rcon $rcon
+        Add-CloseButton($form)
+        Add-Label($form)
+        Add-ResponseLabel($form)
+        Add-TextBox -form $form -rcon $rcon
     }
-    finally {
+    PROCESS {
+        Start-Form($form)
+    }
+    END {
         Disconnect-Rcon -rcon $rcon
     }    
 }
