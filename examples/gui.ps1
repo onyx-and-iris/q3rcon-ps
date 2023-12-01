@@ -90,7 +90,7 @@ Function Send-RconCommand() {
         $resp = $rcon.Send($line)
     }
 
-    if ($resp -match '^["](?<name>[a-z_]+)["]\sis[:]\s["](?<value>[A-Za-z_]+)\^7["]\s') {
+    if ($resp -match '^["](?<name>[a-z_]+)["]\sis[:]\s["](?<value>.*?)\^7["]\s') {
         $RLbl.Text = $Matches.name + ": " + $Matches.value
     }
     $OTB.Text = ""
