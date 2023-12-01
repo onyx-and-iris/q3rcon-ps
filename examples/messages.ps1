@@ -31,7 +31,7 @@ try {
         Send-Message -rcon $rcon
         Start-Sleep -Seconds 10
     } until ($stopWatch.Elapsed -ge $timeSpan)
-
+    $stopWatch.Stop()
 }
 finally {
     Disconnect-Rcon -rcon $rcon
