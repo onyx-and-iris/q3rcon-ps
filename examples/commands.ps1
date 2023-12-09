@@ -17,7 +17,7 @@ try {
     "Rotating the map..."
     $rcon.MapRotate()
 
-    Start-Sleep -Milliseconds 3000 # wait for map to rotate
+    Start-Sleep -Seconds 3 # wait for map to rotate
 
     $rcon.Map()
 }
