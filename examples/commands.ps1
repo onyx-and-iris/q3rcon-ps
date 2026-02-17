@@ -3,8 +3,8 @@ param()
 
 Import-Module ../lib/Q3Rcon.psm1
 
-Function Get-ConnFromPSD1 {
-    $configpath = Join-Path $PSScriptRoot "config.psd1"
+function Get-ConnFromPSD1 {
+    $configpath = Join-Path $PSScriptRoot 'config.psd1'
     return Import-PowerShellDataFile -Path $configpath
 }
 
@@ -14,7 +14,7 @@ try {
     
     $rcon.Map()
 
-    "Rotating the map..."
+    'Rotating the map...'
     $rcon.MapRotate()
 
     Start-Sleep -Seconds 3 # wait for map to rotate
