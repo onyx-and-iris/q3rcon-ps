@@ -122,7 +122,7 @@ class Base {
                 try {
                     $bytesReceived = $this._socket.Receive($this._receiveBuffer)
                     if ($bytesReceived -gt 0) {
-                        $dataStartIndex = [Math]::Min($headerLength, $bytesReceived)
+                        $dataStartIndex = [Math]::Min($headerLength - 1, $bytesReceived)
                         $responseText = [System.Text.Encoding]::ASCII.GetString($this._receiveBuffer, $dataStartIndex, $bytesReceived - $dataStartIndex)
                         $responseData.Append($responseText) | Out-Null
                     }
