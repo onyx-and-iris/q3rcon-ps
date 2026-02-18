@@ -75,25 +75,17 @@ function Send-RconCommand() {
     param($rcon)
 
     $line = $OTB.Text
-    $line | Write-Debug
-    if ($line -in @('fast_restart', 'map_rotate', 'map_restart')) {
-        $RLbl.Text = ''
-        $cmd = $line -replace '(?:^|_)(\p{L})', { $_.Groups[1].Value.ToUpper() }
-        $rcon.$cmd()
-    }
-    elseif ($line.StartsWith('map mp_')) {
-        $RLbl.Text = ''
-        $mapname = $line.Split()[1]
-        $rcon.SetMap($mapname)
-    }
-    else {
-        $resp = $rcon.Send($line)
-    }
+    Write-Debug "Sending command: $line"
+    $resp = $rcon.Send($line)
 
     if ($resp -match '^["](?<name>[a-z_]+)["]\sis[:]\s["](?<value>.*?)\^7["]\s') {
-        $RLbl.Text = $Matches.name + ': ' + $Matches.value
+        $RLbl.Text = Remove-ColourCodes "$($Matches.name): $($Matches.value)"
     }
     $OTB.Text = ''
+}
+
+function Remove-ColourCodes($str) {
+    return $str -replace '\^[0-9]', ''
 }
 
 

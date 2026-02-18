@@ -12,18 +12,13 @@ function Read-HostUntilEmpty {
             break
         }
 
-        if ($line -in @('fast_restart', 'map_rotate', 'map_restart')) {
-            $cmd = $line -replace '(?:^|_)(\p{L})', { $_.Groups[1].Value.ToUpper() }
-            $rcon.$cmd()
-        }
-        elseif ($line.StartsWith('map mp_')) {
-            $mapname = $line.Split()[1]
-            $rcon.SetMap($mapname)
-        }
-        else {
-            $rcon.Send($line)
-        }
+        $resp = $rcon.Send($line)
+        Write-Host (Remove-ColourCodes $resp)
     }
+}
+
+function Remove-ColourCodes($str) {
+    return $str -replace '\^[0-9]', ''
 }
 
 function Get-ConnFromPSD1 {
